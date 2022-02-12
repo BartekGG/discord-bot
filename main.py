@@ -1,5 +1,8 @@
 import discord
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 client = discord.Client()
 
@@ -15,5 +18,5 @@ async def on_message(message):
   if message.content.startswith("Hello"):
     await message.channel.send("World!")
 
-my_secret = os.environ['TOKEN']
+my_secret = os.getenv('TOKEN')
 client.run(my_secret)
