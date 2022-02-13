@@ -18,6 +18,7 @@ async def get(ctx):
     available_coupons = r.smembers("available_coupons")
     if len(available_coupons) == 0:
         await ctx.send("There are no KFC coupons left.")
+        return
 
     coupon = r.spop("available_coupons")
     while(coupon != None):
