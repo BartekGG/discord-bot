@@ -1,0 +1,11 @@
+
+Database:
+- Key: "available_coupons", Value: Set. Contains strings with "<coupon_code>;<coupon_adder>;<expiration_date>.
+- Key: "holders", Value: "Set". Contains string with user who got the coupon and didn't write in back any coupon new coupon code.
+
+Commands:
+!get
+!add
+!coupons
+!holders
+!help
