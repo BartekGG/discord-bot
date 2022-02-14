@@ -28,8 +28,8 @@ async def get(ctx):
         if is_up_to_date.total_seconds() <= 0:
             coupon = r.spop("available_coupons")
             continue
-        r.sadd("holders", str(ctx.message.author))
         await ctx.send(f"Code {code} from {name} is valid for approximately {utils.timedelta_format(is_up_to_date)}.")
+        r.sadd("holders", str(ctx.message.author))
         await ctx.send("You are now added to list of coupon holders.")
         return
     else:
@@ -48,16 +48,21 @@ async def add(ctx, code):
     name = str(ctx.message.author)
     expiry = datetime.today() + timedelta(days=7)
     r.sadd("available_coupons", f"{code};{name};{expiry}")
-    r.srem("holders", name)
     await ctx.send("KFC coupon successfully added.")
-    await ctx.send("You are now removed from list of coupon holders.")
+    holders_removed = r.srem("holders", name)
+    if holders_removed > 0:
+        await ctx.send("You are now removed from list of coupon holders.")
 
 
 @bot.command()
 async def coupons(ctx):
     """Get amount of available KFC coupons using '!coupons' command."""
     r = db.connect()
-    await ctx.send(f"There are {len(r.smembers('available_coupons'))} coupons left.")
+    available_coupons = r.smembers('available_coupons')
+    if len(available_coupons) == 0:
+        await ctx.send(f"There are no coupons left.")
+    else:
+        await ctx.send(f"There are {len(available_coupons)} coupons left.")
 
 
 @bot.command()
@@ -65,6 +70,9 @@ async def holders(ctx):
     """Get current KFC coupon holders using '!holders' command."""
     r = db.connect()
     holders = r.smembers("holders")
-    await ctx.send(f"Current KFC coupons holders are:\n{holders}")
+    if len(holders) == 0:
+        await ctx.send(f"No one is holding KFC coupon.")
+    else:
+        await ctx.send(f"Current KFC coupons holders are:\n{holders}")
 
 bot.run(os.getenv('TOKEN'))
